@@ -13,8 +13,8 @@ length' (a:as) = (length' as) + 1
 
 createTree :: Int -> [Int] -> [Int] -- cria uma arvore inicial dada uma entrada
 createTree position list
-    | position == (length list) + 1 = list -- caso base de chegar no fim da lista ou ela ser vazia
-    | getElement position list <=  getPai position list = create (position + 1) list
-    | otherwise = 0 -- criar funcao SWAP
+  | position == (length' list) + 1 = list -- caso base de chegar no fim da lista ou ela ser vazia
+  | getElement position list <=  getPai position list = create (position + 1) list
+  | otherwise = 0 -- criar funcao SWAP
 
 swap :: Int -> [Int] -> [Int]
