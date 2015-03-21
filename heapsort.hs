@@ -1,4 +1,4 @@
-getElement :: Int -> [Int] -> Int
+getElement :: Int -> [Int] -> Int -- considera a raiz como posicao 1
 getElement 1 (a:as) = a
 getElement position (a:as) = getElement (position - 1) (as)
 
