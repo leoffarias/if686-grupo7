@@ -10,14 +10,14 @@ length' :: [Int] -> Int -- retorna o tamanho da lista
 length' [] = 0
 length' (a:as) = (length' as) + 1
 
-createTree :: Int -> [Int] -> [Int] -- cria uma arvore inicial dada uma entrada
-createTree position list
-    | position == (length' list) + 1 = list -- caso base de chegar no fim da lista ou ela ser vazia
-    | getElement position list <=  getPai position list = createTree (position + 1) list
+createHeap :: Int -> [Int] -> [Int] -- cria o heap dada uma entrada
+createHeap position list
+    | position == (length' list) + 1 = list
+    | getElement position list <=  getPai position list = createHeap (position + 1) list
     | otherwise = swap position list
 
-swap :: Int -> [Int] -> [Int] -- faz a troca caso o no filho tenha numero maior que o pai e retonar a criacao a partir do pai para verificar se precisa de swap novamente
-swap position list =  createTree (position `div` 2) (inicio (position `div` 2) list ++ [getElement position list] ++ meio (position `div` 2) position list ++ [getPai position list] ++ fim position list)
+swap :: Int -> [Int] -> [Int] -- faz a troca caso o no filho tenha numero maior que o pai e retona a criacao a partir do pai para verificar se precisa de swap novamente
+swap position list =  createHeap (position `div` 2) (inicio (position `div` 2) list ++ [getElement position list] ++ meio (position `div` 2) position list ++ [getPai position list] ++ fim position list)
 
 inicio :: Int -> [Int] -> [Int] -- auxilia o swap a pegar a lista antes o pai
 inicio 1 list = []
