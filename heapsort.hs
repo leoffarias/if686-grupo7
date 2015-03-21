@@ -2,7 +2,6 @@ getElement :: Int -> [Int] -> Int -- retorna o numero da lista dada uma posicao
 getElement 1 (a:as) = a
 getElement position (a:as) = getElement (position - 1) (as)
 
-
 getPai :: Int -> [Int] -> Int -- retorna o no pai de um numero dada sua posicao
 getPai 1 (a:as) = a -- caso base, o primeiro numero sendo pai dele mesmo
 getPai position (a:as) = getElement (position `div` 2) (a:as) -- pai = numero de posicao n/2 
@@ -19,9 +18,8 @@ createTree position list
 
 swap :: Int -> [Int] -> [Int] -- faz a troca caso o no filho tenha numero maior que o pai
 swap position list
-    | getElement position list <=  createTree (position `div` 2) (getPai position list = inicio position list : getPai (position `div` 2) list : meio (position `div` 2) position list : getElement position list : fim position list)
-    | otherwise = list
--- o swap volta a criar a arvore a partir da posicao do pai, para poder verificar se tem que fazer swap novamente
+    | getElement position list >  getPai position list = inicio position list : getElement position list : meio (position `div` 2) position list : getPai position list : fim position list
+    | otherwise = createTree (position `div` 2) list -- o swap volta a criar a arvore a partir da posicao do pai, para poder verificar se tem que fazer swap novamente
 
 inicio :: Int -> [Int] -> [Int] -- auxilia o swap a pegar a lista antes o pai
 inicio 1 list = []
@@ -32,7 +30,6 @@ meio pai filho (a:as)
     | pai >= 1 = meio (pai - 1) (filho-1) as
     | filho > 1 = a:(meio pai (filho-1)
     | otherwise = []
-
 
 fim :: Int -> [Int] -> [Int] -- auxilia o swap a pegar a lista depois do filho
 fim position (a:as)
