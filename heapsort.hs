@@ -31,5 +31,5 @@ meio pai filho (a:as)
 
 fim :: Int -> [Int] -> [Int] -- auxilia o swap a pegar a lista depois do filho
 fim position (a:as)
-    | position >= 1 = fim (position - 1) as
-    | otherwise = (a:as)
+    | position > 1 = fim (position - 1) as
+    | otherwise = as
