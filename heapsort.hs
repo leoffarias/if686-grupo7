@@ -17,7 +17,7 @@ createTree position list
     | otherwise = swap position list
 
 swap :: Int -> [Int] -> [Int] -- faz a troca caso o no filho tenha numero maior que o pai e retonar a criacao a partir do pai para verificar se precisa de swap novamente
-swap position list =  createTree (position `div` 2) (inicio position list : getElement position list : meio (position `div` 2) position list : getPai position list : fim position list)
+swap position list =  createTree (position `div` 2) (inicio (position `div` 2) list ++ [getElement position list] ++ meio (position `div` 2) position list ++ [getPai position list] ++ fim position list)
 
 inicio :: Int -> [Int] -> [Int] -- auxilia o swap a pegar a lista antes o pai
 inicio 1 list = []
