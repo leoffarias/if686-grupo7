@@ -1,3 +1,32 @@
+{-Trabalho 3-}
+
+{-Questao 1-}
+
+type Table = [(Int, Int)] -- Primeiro int = chave, segundo int = valor
+
+getElem :: Table -> Int -> Int
+getElem [] _ = 0 -- ???
+getElem ((a, as):bs) n
+ | a == n = as
+ | otherwise = getElem bs n
+
+hasKey :: Table -> Int -> Bool
+hasKey [] _ = False
+hasKey ((a, as):bs) n
+ | a == n = True
+ | otherwise = hasKey bs n
+
+putElem :: Table -> (Int, Int) -> Table
+putElem as (x, y) 
+ | hasKey as x = as -- Nao adiciona se ja existir a chave
+ | otherwise = (as ++ [(x,y)])
+
+removeElem :: Table -> Int -> Table -- int = chave
+removeElem [] _ = []
+removeElem xs x = [(a, as) | (a, as) <- xs, (a /= x)]
+
+{-Questao 2-}
+
 contemElem :: (Eq t) => [t] -> t -> Bool
 contemElem [] _ = False
 contemElem (a:as) b
