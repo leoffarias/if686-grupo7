@@ -43,26 +43,45 @@ type Grafo = [(vertice, [adjacencias])], ou seja, [(t, [t])]
 Exemplo de grafo: [(1,[2,3]), (2,[1,3,4]), (3,[1,2,4]), (4,[2,3]), (5,[])], querendo percorrer entre nó 1 e 4
 -}
 
-listaVertices :: (Eq t) => [(t,[t])] -> [(t,Bool)] -- constroi a lista de vertices com a flag booleana de visitado = False
-listaVertices [] = [] -- caso base
+listaVertices :: (Eq t) => [(t,[t])] -> [(t,Bool)] -- constroi a lista de vertices com a flag booleana "visitado" = False, usando o grafo como entrada
+listaVertices [] = []
 listaVertices ((x,y):as) = [(x,False)] ++ (listaVertices as)
 
-marcaVertices :: (Eq t) => [(t,Bool)] -> t -> Bool -> [(t,Bool)]
-marcaVertices [] vertice visitado = [] -- caso base
+marcaVertices :: (Eq t) => [(t,Bool)] -> t -> Bool -> [(t,Bool)] -- altera "visitado" usando como entrada a lista de vertices, o vertice e True or False
+marcaVertices [] vertice visitado = []
 marcaVertices ((x,y):as) vertice visitado
     | x == vertice = [(x,visitado)] ++ (marcaVertices as vertice visitado)
     | otherwise = [(x,y)] ++ (marcaVertices as vertice visitado)
 
+adjacentes :: (Eq t) => [(t,[t])] -> t -> [t] -- retorna a lista de vertices adjacents a um vertice t usando o grafo como entrada
+adjacentes [] vertice = []
+adjacentes ((x,y):as) vertice
+    | x == vertice = y
+    | otherwise = adjacentes as vertice
+
+visitado :: (Eq t) => [(t,Bool)] -> t -> Bool -- retorna o estado de "visitado" de um vértice usando a lista de vertices como entrada
+visitado [] vertice = False
+visitado ((x,y):as) vertice
+    | x == vertice = y
+    | otherwise = visitado as vertice
+
+proximoAdjacente :: (Eq t) => [t] -> [(t,Bool)] -> [t] -- retorna o proximo vertice adjacente não visitado, entradas: listas de adjacentes e de vertices
+proximoAdjacente [] vertices = []
+proximoAdjacente (a:as) vertices
+    | visitado vertices a == True = proximoAdjacente as vertices
+    | otherwise = [a]
+
+criaCaminho :: [t] -> [(t,t)] -- pega a pilha e remonta o caminho do vertice inicial ao desejado
+criaCaminho [] = []
+criaCaminho (a:as) = criaCaminho as++[(a, (head as))]
+
 busca :: (Eq t) => [(t,[t])] -> [(t,Bool)] -> [t] -> t -> t -> [(t,t)] -- funcao de busca em profundidade
-busca grafo vertices []] inicio fim = [] -- caso base de a pilha estar vazia (terem acabado os vertices adjacentes nao visitados)
+busca grafo vertices [] inicio fim = [] -- caso base de a pilha estar vazia (terem acabado os vertices adjacentes não visitados)
 busca grafo vertices pilha inicio fim
-    -- coloca o primeiro vertice adjacente na pilha, marca como visitado e verifica se é igual ao "fim" assim por diante
-    -- se o vertice adjacente for igual ao fim, cria o caminho com os pontos da pilha e devolve para a funcao search
-    -- se nao tiver vertice adjancete [nao visitado], tira o numero da pilha e procura um adjacente ao anterior, assim por diante
+    | (proximoAdjacente (adjacentes grafo inicio) vertices) == [] = busca grafo vertices (tail pilha) inicio fim -- não há adjacente válido, volta a pilha
+    | head (proximoAdjacente (adjacentes grafo inicio) vertices) == fim = criaCaminho pilha -- chegou no vertice pretendido, retorna o caminho
+    | otherwise = busca grafo (marcaVertices vertices inicio True) ((proximoAdjacente (adjacentes grafo inicio) vertices)++pilha) (head (proximoAdjacente (adjacentes grafo inicio) vertices)) fim 
+    -- marca o proximo vertice adjacente como visitado, o coloca na pilha e o considera como inicio
 
 search :: (Eq t) => [(t,[t])] -> t -> t -> [(t,t)] -- funcao inicial que marca vertices como não lidos, define o incial como visitado e o coloca na fila
 search grafo inicio fim = busca grafo (marcaVertices (listaVertices grafo) inicio True) [inicio] inicio fim
-
--- https://www.youtube.com/watch?v=pJ3ilnhXWCQ
--- http://www.land.ufrj.br/~classes/grafos/slides/aula_6.pdf
-
