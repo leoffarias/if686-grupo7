@@ -40,7 +40,7 @@ type Grafo = [(vertice, [adjacencias])], ou seja, [(t, [t])]
 -}
 
 {-
-Exemplo de grafo: [(1,[2,3]), (2,[1,3,4]), (3,[1,2,4]), (4,[2,3]), (5,[])], querendo percorrer entre nó 1 e 4
+Exemplo de grafo: [(1,[2,3]), (2,[1,3,4]), (3,[1,2,4]), (4,[2,3]), (5,[])]
 -}
 
 listaVertices :: (Eq t) => [(t,[t])] -> [(t,Bool)] -- constroi a lista de vertices com a flag booleana "visitado" = False, usando o grafo como entrada
