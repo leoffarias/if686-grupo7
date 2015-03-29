@@ -71,15 +71,17 @@ proximoAdjacente (a:as) vertices
     | visitado vertices a == True = proximoAdjacente as vertices
     | otherwise = [a]
 
-criaCaminho :: [t] -> [(t,t)] -- pega a pilha e remonta o caminho do vertice inicial ao desejado
+criaCaminho :: (Eq t) => [t] -> [(t,t)] -- pega a pilha e remonta o caminho do vertice inicial ao desejado
 criaCaminho [] = []
-criaCaminho (a:as) = criaCaminho as++[(a, (head as))]
+criaCaminho (a:as)
+    | as == [] =  [] -- quando é o último elemento não se cria um caminho dele até o vazio
+    | otherwise = (criaCaminho as)++[((head as), a)]
 
 busca :: (Eq t) => [(t,[t])] -> [(t,Bool)] -> [t] -> t -> t -> [(t,t)] -- funcao de busca em profundidade
 busca grafo vertices [] inicio fim = [] -- caso base de a pilha estar vazia (terem acabado os vertices adjacentes não visitados)
 busca grafo vertices pilha inicio fim
     | (proximoAdjacente (adjacentes grafo inicio) vertices) == [] = busca grafo vertices (tail pilha) inicio fim -- não há adjacente válido, volta a pilha
-    | head (proximoAdjacente (adjacentes grafo inicio) vertices) == fim = criaCaminho pilha -- chegou no vertice pretendido, retorna o caminho
+    | head (proximoAdjacente (adjacentes grafo inicio) vertices) == fim = criaCaminho (fim:pilha) -- chegou no vertice pretendido, retorna o caminho
     | otherwise = busca grafo (marcaVertices vertices inicio True) ((proximoAdjacente (adjacentes grafo inicio) vertices)++pilha) (head (proximoAdjacente (adjacentes grafo inicio) vertices)) fim 
     -- marca o proximo vertice adjacente como visitado, o coloca na pilha e o considera como inicio
 
