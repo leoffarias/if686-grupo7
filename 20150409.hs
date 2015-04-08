@@ -2,15 +2,19 @@
 
 ----------- questao 1 -------------
 
-data Grafos t = Nil | Grafo [(t, [(t,Int)])] -- grafico representado por vertice e lista de (adjacencente, peso)
+data Grafos t = Nil | Grafo [(t, [(t,Int)])] deriving (Show, Eq) -- grafico representado por vertice e lista de (adjacencente, peso)
 
--- FAZER O SHOW E O EQ / UTILIZAR O DERIVING?
+{-
+Ex. 1: show (Grafo [(1,[(2,1),(3,2)]), (2,[(1,3),(3,1)]), (3,[(2,2)])]) -- "Grafo [(1,[(2,1),(3,2)]),(2,[(1,3),(3,1)]),(3,[(2,2)])]"
+Ex. 2: (Grafo [(1,[(1,1),(2,1)]), (2,[(1,2)])]) == (Grafo [(1,[(1,1),(2,1)]), (2,[(1,2)])]) -- True
+Ex. 3: (Grafo [(1,[(1,1),(2,1)]), (2,[(1,2)])]) == (Grafo [(1,[(2,1)]), (2,[(1,2)])]) -- False
+-}
 
 ----------- questao 2 -------------
 
 {-
-Ex. 1: search (Grafo [(1,[(2,1),(3,2)]), (2,[(1,1),(3,2),(4,1)]), (3,[(1,2),(2,2),(4,3)]), (4,[(2,1),(3,3)]), (5,[])]) 1 4 -- True
-Ex. 2: search (Grafo [(1,[(2,1),(3,2)]), (2,[(1,1),(3,2),(4,1)]), (3,[(1,2),(2,2),(4,3)]), (4,[(2,1),(3,3)]), (5,[])]) 1 5 -- False
+Ex. 1: search (Grafo [(1,[(2,1),(3,2)]), (2,[(1,3),(3,1)]), (3,[(2,2),(4,3)]), (4,[(2,2)]), (5,[])]) 1 4 -- True
+Ex. 2: search (Grafo [(1,[(2,1),(3,2)]), (2,[(1,3),(3,1)]), (3,[(2,2),(4,3)]), (4,[(2,2)]), (5,[])]) 1 5 -- False
 -}
 
 listaVertices :: (Eq t) => Grafos t -> [(t,Bool)] -- constroi a lista de vertices com a flag booleana "visitado" = False, usando o grafo como entrada
