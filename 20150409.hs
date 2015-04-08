@@ -2,16 +2,16 @@
 
 ----------- questao 1 -------------
 
--- a fazer
+data Grafos t = Nil | Grafo [(t, [(t,Int)])] -- grafico representado por vertice e lista de (adjacencente, peso)
+
+-- FAZER O SHOW E O EQ / UTILIZAR O DERIVING?
 
 ----------- questao 2 -------------
 
 {-
-Ex. 1: search (Grafo [(1,[2,3]), (2,[1,3,4]), (3,[1,2,4]), (4,[2,3]), (5,[])]) 1 4 -- True
-Ex. 2: search (Grafo [(1,[2,3]), (2,[1,3,4]), (3,[1,2,4]), (4,[2,3]), (5,[])]) 1 5 -- False
+Ex. 1: search (Grafo [(1,[(2,1),(3,2)]), (2,[(1,1),(3,2),(4,1)]), (3,[(1,2),(2,2),(4,3)]), (4,[(2,1),(3,3)]), (5,[])]) 1 4 -- True
+Ex. 2: search (Grafo [(1,[(2,1),(3,2)]), (2,[(1,1),(3,2),(4,1)]), (3,[(1,2),(2,2),(4,3)]), (4,[(2,1),(3,3)]), (5,[])]) 1 5 -- False
 -}
-
-data Grafos t = Nil | Grafo [(t, [t])] -- grafico representado por vertice e lista de adjacencias
 
 listaVertices :: (Eq t) => Grafos t -> [(t,Bool)] -- constroi a lista de vertices com a flag booleana "visitado" = False, usando o grafo como entrada
 listaVertices Nil = []
@@ -23,10 +23,14 @@ marcaVertices ((x,y):as) vertice visitado
     | x == vertice = [(x,visitado)] ++ (marcaVertices as vertice visitado)
     | otherwise = [(x,y)] ++ (marcaVertices as vertice visitado)
 
+pegaVertices :: [(t,Int)] -> [t]
+pegaVertices [] = []
+pegaVertices ((vertice, peso):as) = vertice : (pegaVertices as)
+
 adjacentes :: (Eq t) => Grafos t -> t -> [t] -- retorna a lista de vertices adjacents a um vertice t usando o grafo como entrada
 adjacentes Nil vertice = []
 adjacentes (Grafo ((x,y):as)) vertice
-    | x == vertice = y
+    | x == vertice = pegaVertices y
     | otherwise = adjacentes (Grafo as) vertice
 
 visitado :: (Eq t) => [(t,Bool)] -> t -> Bool -- retorna o estado de "visitado" de um vértice usando a lista de vertices como entrada
