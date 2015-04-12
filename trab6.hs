@@ -10,10 +10,16 @@ mapGraph f (Grafo ((vertice, adjacencias):as)) =  Grafo ( (f vertice, adjacencia
 -}
 
 -- acho que ta errado, nao sei como testar essa funcao ai
+foldGraph :: (t -> (t,[(t,t)]) -> (t,[(t,t)])) -> t -> Grafos t -> (t,[(t,t)])
+foldGraph f t Nil = (t,[])
+foldGraph f s (Grafo ((vertice, adjacencias):as)) = f (vertice) (foldGraph f s (Grafo (as)))
+
+
+{-
 foldGraph :: (t -> [t] -> [t]) -> t -> Grafos t -> [t]
 foldGraph f t Nil = [t]
 foldGraph f s (Grafo ((vertice, adjacencias):as)) = f (vertice) (foldGraph f s (Grafo (as)))
-
+-}
 
 {-
 foldGraph :: (t -> [Int] -> [Int]) -> Grafos t -> [Int]
