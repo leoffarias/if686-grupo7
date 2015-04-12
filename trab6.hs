@@ -25,4 +25,4 @@ foldGraph f s (Grafo ((vertice, adjacencias):as)) = f (vertice) (foldGraph f s (
 foldGraph :: (t -> [Int] -> [Int]) -> Grafos t -> [Int]
 foldGraph f Nil = []
 foldGraph f (Grafo ((vertice, adjacencias):as)) = f (vertice) (foldGraph f (Grafo (as))
--}f
+-}
