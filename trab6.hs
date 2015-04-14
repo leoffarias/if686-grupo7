@@ -1,71 +1,61 @@
------------ TRABALHO 07 -------------
+----------- TRABALHO 06 -------------
 
--- Questao 1 --
-
-junta :: (t -> t) -> (t -> t) -> (t -> t)
-junta g f = f'
- where f' x = g (f x)
-
-compose :: (t -> t) -> [(t -> t)] -> [(t -> t)]
-compose g f = map (junta g) f
-
--- Questao 2 --
+----------- questao 1 -------------
 
 data Grafos t = Nil | Grafo [(t, [(t,Int)])] deriving (Show, Eq) -- grafico representado por vertice e lista de (adjacencente, peso)
 
-g = Grafo ([(1,[(1,1),(2,1)]), (2,[(1,2)])]) -- exemplo
+{-
+Ex. 1: show (Grafo [(1,[(2,1),(3,2)]), (2,[(1,3),(3,1)]), (3,[(2,2)])]) -- "Grafo [(1,[(2,1),(3,2)]),(2,[(1,3),(3,1)]),(3,[(2,2)])]"
+Ex. 2: (Grafo [(1,[(1,1),(2,1)]), (2,[(1,2)])]) == (Grafo [(1,[(1,1),(2,1)]), (2,[(1,2)])]) -- True
+Ex. 3: (Grafo [(1,[(1,1),(2,1)]), (2,[(1,2)])]) == (Grafo [(1,[(2,1)]), (2,[(1,2)])]) -- False
+-}
 
--- map --
+----------- questao 2 -------------
 
-mapGraph :: (Eq t) => (t -> u) -> Grafos t -> [(u, [(u,Int)])] -- aplica o map nos vertices
-mapGraph f Nil = []
-mapGraph f (Grafo ((vertice, adjacencias):as))
-    | as == [] = ((f vertice), (mapAdjacencias f adjacencias)) : (mapGraph f Nil)
-    | otherwise = ((f vertice), (mapAdjacencias f adjacencias)) : (mapGraph f (Grafo (as)))
+{-
+Ex. 1: search (Grafo [(1,[(2,1),(3,2)]), (2,[(1,3),(3,1)]), (3,[(2,2),(4,3)]), (4,[(2,2)]), (5,[])]) 1 4 -- True
+Ex. 2: search (Grafo [(1,[(2,1),(3,2)]), (2,[(1,3),(3,1)]), (3,[(2,2),(4,3)]), (4,[(2,2)]), (5,[])]) 1 5 -- False
+-}
 
-mapAdjacencias :: (t -> u) -> [(t,p)] -> [(u,p)] -- retorna a lista de adjacencias com as funcoes aplicadas nos vertices
-mapAdjacencias f [] = []
-mapAdjacencias f ((vertice,elemento):as) = ((f vertice), elemento):(mapAdjacencias f as)
--- exemplo: mapGraph ((+)1) g -- [(2,[(2,1),(3,1)]),(3,[(2,2)])]
+listaVertices :: (Eq t) => Grafos t -> [(t,Bool)] -- constroi a lista de vertices com a flag booleana "visitado" = False, usando o grafo como entrada
+listaVertices Nil = []
+listaVertices (Grafo ((x,y):as)) = [(x,False)] ++ (listaVertices (Grafo as))
 
--- fold --
+marcaVertices :: (Eq t) => [(t,Bool)] -> t -> Bool -> [(t,Bool)] -- altera "visitado" usando como entrada a lista de vertices, o vertice e True or False
+marcaVertices [] vertice visitado = []
+marcaVertices ((x,y):as) vertice visitado
+    | x == vertice = [(x,visitado)] ++ (marcaVertices as vertice visitado)
+    | otherwise = [(x,y)] ++ (marcaVertices as vertice visitado)
 
-mapVertices :: (t ->u) -> [t] -> [u] -- aplica o map na lista de vertices
-mapVertices f vertices = map f vertices
+pegaVertices :: [(t,Int)] -> [t]
+pegaVertices [] = []
+pegaVertices ((vertice, peso):as) = vertice : (pegaVertices as)
 
-foldVertices :: (Eq t) => Grafos t -> [t] -- da "fold" no grafo para pegar so os vertices
-foldVertices Nil = []
-foldVertices (Grafo ((vertice, adjacencias):as))
-    | as == [] = vertice : (foldVertices Nil)
-    | otherwise = vertice : (foldVertices (Grafo (as)))
+adjacentes :: (Eq t) => Grafos t -> t -> [t] -- retorna a lista de vertices adjacents a um vertice t usando o grafo como entrada
+adjacentes Nil vertice = []
+adjacentes (Grafo ((x,y):as)) vertice
+    | x == vertice = pegaVertices y
+    | otherwise = adjacentes (Grafo as) vertice
 
-foldGraph :: (Eq t) => (t -> u) -> Grafos t -> [u] -- fold graph usando dois metodos acima
-foldGraph f (Grafo grafo) =  mapVertices f (foldVertices (Grafo (grafo)))
--- exemplo: foldGaph ((+) 1) g = [2,3] -- soma 1 nos vertices
+visitado :: (Eq t) => [(t,Bool)] -> t -> Bool -- retorna o estado de "visitado" de um vértice usando a lista de vertices como entrada
+visitado [] vertice = False
+visitado ((x,y):as) vertice
+    | x == vertice = y
+    | otherwise = visitado as vertice
 
--- Questao 3 --
+proximoAdjacente :: (Eq t) => [t] -> [(t,Bool)] -> [t] -- retorna o proximo vertice adjacente não visitado, entradas: listas de adjacentes e de vertices
+proximoAdjacente [] vertices = []
+proximoAdjacente (a:as) vertices
+    | visitado vertices a == True = proximoAdjacente as vertices
+    | otherwise = [a]
 
-data Tree t = NilT | Node t (Tree t) (Tree t) deriving (Eq, Show)
+busca :: (Eq t) => Grafos t -> [(t,Bool)] -> [t] -> t -> t -> Bool -- funcao de busca em profundidade
+busca (Grafo grafo) vertices [] inicio fim = False -- caso base de a pilha estar vazia (terem acabado os vertices adjacentes não visitados)
+busca (Grafo grafo) vertices pilha inicio fim
+    | (proximoAdjacente (adjacentes (Grafo grafo) inicio) vertices) == [] = busca (Grafo grafo) vertices (tail pilha) inicio fim -- não há adjacente válido, volta a pilha
+    | head (proximoAdjacente (adjacentes (Grafo grafo) inicio) vertices) == fim = True -- chegou no vertice pretendido, retorna o caminho
+    | otherwise = busca (Grafo grafo) (marcaVertices vertices inicio True) ((proximoAdjacente (adjacentes (Grafo grafo) inicio) vertices)++pilha) (head (proximoAdjacente (adjacentes (Grafo grafo) inicio) vertices)) fim 
+    -- marca o proximo vertice adjacente como visitado, o coloca na pilha e o considera como inicio
 
---(Node 5 (Node 7 (Node 15 NilT (Node 6 NilT NilT)) (Node 2 NilT NilT)) (Node 10 NilT NilT))
-
-filtro :: Eq t => (t -> Bool) -> Tree t -> (Tree t, [Tree t])
-filtro _ NilT = (NilT, [])
-filtro f (Node v e d)
-    | f v = ((Node v esquerda direita), (listaEsq ++ listaDir))
-    | not (f v) && (e == NilT) && (d == NilT) = (NilT, [])
-    | otherwise = (NilT, filterTree f e ++ filterTree f d )
-    where (esquerda, listaEsq) = filtro f e
-          (direita, listaDir) = filtro f d
-
-filtrandoLista :: Eq t => (t -> Bool) -> (Tree t, [Tree t]) -> [Tree t]
-filtrandoLista f (x, []) = []
-filtrandoLista f (x, a:as) 
- | arv == NilT = filtrandoLista f (x, as)
- | otherwise = arv : filtrandoLista f (x, as)
- where (arv, filtraHead) = filtro f a
-
-filterTree :: Eq t => (t -> Bool) -> Tree t -> [Tree t]
-filterTree _ NilT = []
-filterTree f a = arv : (filtrandoLista f (arv, floresta))
- where (arv, floresta) = filtro f a
+search :: (Eq t) => Grafos t -> t -> t -> Bool -- funcao inicial que marca vertices como não lidos, define o incial como visitado e o coloca na fila
+search (Grafo grafo) inicio fim = busca (Grafo grafo) (marcaVertices (listaVertices (Grafo grafo)) inicio True) [inicio] inicio fim
