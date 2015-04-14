@@ -9,21 +9,45 @@ junta g f = f'
 compose :: (t -> t) -> [(t -> t)] -> [(t -> t)]
 compose g f = map (junta g) f
 
-
 -- Questao 2 --
 
 data Grafos t = Nil | Grafo [(t, [(t,Int)])] deriving (Show, Eq) -- grafico representado por vertice e lista de (adjacencente, peso)
 
-{-mapGraph :: (t -> u) -> Grafo -> [u]
-mapGraph f Nil = []
-mapGraph f (Grafo ((v, ((a,p):bs)):as)) = f a : mapGraph f as-}
+g = Grafo ([(1,[(1,1),(2,1)]), (2,[(1,2)])]) -- exemplo
 
+-- map --
+
+mapGraph :: (Eq t) => (t -> u) -> Grafos t -> [(u, [(u,Int)])] -- aplica o map nos vertices
+mapGraph f Nil = []
+mapGraph f (Grafo ((vertice, adjacencias):as))
+    | as == [] = ((f vertice), (mapAdjacencias f adjacencias)) : (mapGraph f Nil)
+    | otherwise = ((f vertice), (mapAdjacencias f adjacencias)) : (mapGraph f (Grafo (as)))
+
+mapAdjacencias :: (t -> u) -> [(t,p)] -> [(u,p)] -- retorna a lista de adjacencias com as funcoes aplicadas nos vertices
+mapAdjacencias f [] = []
+mapAdjacencias f ((vertice,elemento):as) = ((f vertice), elemento):(mapAdjacencias f as)
+-- exemplo: mapGraph ((+)1) g -- [(2,[(2,1),(3,1)]),(3,[(2,2)])]
+
+-- fold --
+
+mapVertices :: (t ->u) -> [t] -> [u] -- aplica o map na lista de vertices
+mapVertices f vertices = map f vertices
+
+foldVertices :: (Eq t) => Grafos t -> [t] -- da "fold" no grafo para pegar so os vertices
+foldVertices Nil = []
+foldVertices (Grafo ((vertice, adjacencias):as))
+    | as == [] = vertice : (foldVertices Nil)
+    | otherwise = vertice : (foldVertices (Grafo (as)))
+
+foldGraph :: (Eq t) => (t -> u) -> Grafos t -> [u] -- fold graph usando dois metodos acima
+foldGraph f (Grafo grafo) =  mapVertices f (foldVertices (Grafo (grafo)))
+-- exemplo: foldGaph ((+) 1) g = [2,3] -- soma 1 nos vertices
 
 -- Questao 3 --
 
 data Tree t = NilT | Node t (Tree t) (Tree t) deriving (Eq, Show)
 
---(Node 5 (Node 7 (Node 15 NilT (Node 6 NilT NilT)) (Node 2 NilT NilT)) (Node 10 NilT NilT))
+--(Node 5 (Node 7 (Node 15 NilT (Node 6 NilT NilT)) (Node 2 NilT NilT)) (Node 7 (Node 15 NilT (Node 6 NilT NilT)) (Node 2 NilT NilT)))
 
 filtro :: Eq t => (t -> Bool) -> Tree t -> (Tree t, [Tree t])
 filtro _ NilT = (NilT, [])
